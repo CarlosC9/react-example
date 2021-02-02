@@ -19,6 +19,7 @@ export class UserServiceError extends Error {
 }
 
 export default class UserService {
+    
     static async login(username : string, password: string) : Promise<string | null> {
         let error = null;
         let token = null;
@@ -52,4 +53,35 @@ export default class UserService {
         }
         return token;
     } 
+
+    static async signUp(username : string, password: string) : Promise<string | null> {
+        let error = null;
+        let token = null;
+        await axios.request({
+            method: 'POST',
+            url: `http://${servicesKeys.serverIp}:${servicesKeys.port}/user/signup`,
+            data: {
+                username: username,
+                password: password,
+            },
+        }).then(
+            (response) => {
+                token = response.data.token;
+            },
+            (reason) => {
+                switch (reason.response.status) {
+                    case 400:
+                        error = new UserServiceError(reason.response.data, UserServiceErrorTypes.NOT_SEND_ALL_FIELDS);
+                        break;
+                    case 403:
+                        error = new UserServiceError(reason.response.data, UserServiceErrorTypes.USERNAME_ALREADY_EXISTS);
+                        break;
+                }
+            }
+        );
+        if (error) {
+            throw error;
+        }
+        return token;
+    }
 }

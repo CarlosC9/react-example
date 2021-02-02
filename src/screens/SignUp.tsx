@@ -10,10 +10,9 @@ import {
     Snackbar,
 } from '@material-ui/core';
 import {
-    Link,
-    useHistory,
+    Link
 } from 'react-router-dom';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import UserService, { UserServiceError, UserServiceErrorTypes } from '../services/user.service';
 import Alert from '../components/Alert';
 
@@ -39,7 +38,6 @@ const useStyles = makeStyles(theme => ({
 
 interface Props {
     classes: any;
-    history: any,
 }
 
 interface State {
@@ -47,7 +45,7 @@ interface State {
     messageSnackBar: string,
 }
 
-class LoginComponent extends Component<Props, State> {
+class SignUpComponent extends Component<Props, State> {
 
     constructor(public props: Props) {
         super(props);
@@ -66,15 +64,14 @@ class LoginComponent extends Component<Props, State> {
         });
     }
 
-    async loginSubmit(event: React.FormEvent) {
+    async signUpSubmmit(event: React.FormEvent) {
         event.preventDefault();
         const password = (event.target as any).password.value;
         const username = (event.target as any).username.value;
         try {
-            const token = await UserService.login(username, password);
+            const token = await UserService.signUp(username, password);
             if (token) {
-                await localStorage.setItem("token", token);
-                this.props.history.push("/home");
+                localStorage.setItem("token", token);
             }
         } catch (e) {
             if (e instanceof UserServiceError) {
@@ -85,16 +82,10 @@ class LoginComponent extends Component<Props, State> {
                             messageSnackBar: "No enviastes todos los datos necesarios para iniciar sesión"
                         });
                         break;
-                    case UserServiceErrorTypes.USERNAME_NOT_EXISTS:
+                    case UserServiceErrorTypes.USERNAME_ALREADY_EXISTS:
                         this.setState({
                             openSnackBar: true,
-                            messageSnackBar: "El usuario no existe.",
-                        });
-                        break;
-                    case UserServiceErrorTypes.PASSWORD_NOT_CORRECT:
-                        this.setState({
-                            openSnackBar: true,
-                            messageSnackBar: "La contraseña no es correcta.",
+                            messageSnackBar: "El nombre de usuario ya existe.",
                         });
                         break;
                 }
@@ -107,12 +98,12 @@ class LoginComponent extends Component<Props, State> {
             <Container maxWidth="xs">
                 <Paper elevation={0} className={this.props.classes.paper}>
                     <Avatar className={this.props.classes.avatar}>
-                        <LockOutlinedIcon />
+                        <AccountCircleIcon />
                     </Avatar>
                     <Typography variant="h5">
-                        Iniciar Sesión
+                        Regístrate
                     </Typography>
-                    <form className={this.props.classes.form} onSubmit={this.loginSubmit.bind(this)}>
+                    <form className={this.props.classes.form} onSubmit={this.signUpSubmmit.bind(this)}>
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -143,10 +134,10 @@ class LoginComponent extends Component<Props, State> {
                             className={this.props.classes.submit}
                             disabled={false}
                         >
-                            Iniciar sesión
+                            Registrarse
                         </Button>
-                        <Link to="/signup">
-                            {"¿Aún no tienes cuenta? Regístrate"}
+                        <Link to="/login">
+                            {"¿Ya tienes cuenta? Inicia sesión"}
                         </Link>
                     </form>
                 </Paper>
@@ -163,8 +154,7 @@ class LoginComponent extends Component<Props, State> {
 
 export default function LoginScreen(props: {}) {
     const classes = useStyles();
-    const history = useHistory();
     return (
-        <LoginComponent classes={classes} history={history}/>
+        <SignUpComponent classes={classes} />
     );
 }

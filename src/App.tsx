@@ -17,6 +17,7 @@ import {
   Redirect,
 } from 'react-router-dom';
 import LoginScreen from './screens/Login';
+import SignUpScreen from './screens/SignUp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 const theme = createMuiTheme({
@@ -38,7 +39,7 @@ const theme = createMuiTheme({
 
 const useStyles = makeStyles(theme => ({
   title: {
-      flexGrow: 1,
+    flexGrow: 1,
   },
 }));
 
@@ -63,7 +64,9 @@ class AppComponent extends Component<Props, State> {
     if (!token && path === '/home') {
       this.props.history.push("/login");
     } else if (token && path === '/login') {
-
+      this.props.history.push("/home");
+    } else if (token && path === '/signup') {
+      this.props.history.push("/home");
     }
   }
 
@@ -73,14 +76,14 @@ class AppComponent extends Component<Props, State> {
         <ThemeProvider theme={theme}>
           <AppBar position="static" color="primary">
             <Container maxWidth="lg">
-            <Toolbar>
-              <Typography variant="h5" className={this.props.classes.title}>
-                Video
+              <Toolbar>
+                <Typography variant="h5" className={this.props.classes.title}>
+                  Video
               </Typography>
-              <IconButton edge="end" className={this.props.classes.profileButton} color="inherit" aria-label="profle">
-                <AccountCircleIcon />
-              </IconButton>
-            </Toolbar>
+                <IconButton edge="end" className={this.props.classes.profileButton} color="inherit" aria-label="profle">
+                  <AccountCircleIcon />
+                </IconButton>
+              </Toolbar>
             </Container>
           </AppBar>
           <Switch>
@@ -94,8 +97,8 @@ class AppComponent extends Component<Props, State> {
               <LoginScreen />
             </Route>
             <Route path="/signup" exact>
-              signup
-              </Route>
+              <SignUpScreen />
+            </Route>
             <Route>
               404
               </Route>
