@@ -10,7 +10,8 @@ import {
     Snackbar,
 } from '@material-ui/core';
 import {
-    Link
+    Link,
+    useHistory,
 } from 'react-router-dom';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import UserService, { UserServiceError, UserServiceErrorTypes } from '../services/user.service';
@@ -37,7 +38,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface Props {
-    classes: any;
+    classes: any,
+    history: any,
 }
 
 interface State {
@@ -72,6 +74,7 @@ class SignUpComponent extends Component<Props, State> {
             const token = await UserService.signUp(username, password);
             if (token) {
                 localStorage.setItem("token", token);
+                this.props.history.push("/home");
             }
         } catch (e) {
             if (e instanceof UserServiceError) {
@@ -154,7 +157,8 @@ class SignUpComponent extends Component<Props, State> {
 
 export default function LoginScreen(props: {}) {
     const classes = useStyles();
+    const history = useHistory();
     return (
-        <SignUpComponent classes={classes} />
+        <SignUpComponent classes={classes} history={history}/>
     );
 }

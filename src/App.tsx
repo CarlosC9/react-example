@@ -18,7 +18,10 @@ import {
 } from 'react-router-dom';
 import LoginScreen from './screens/Login';
 import SignUpScreen from './screens/SignUp';
+import HomeScreen from './screens/Home';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const theme = createMuiTheme({
   palette: {
@@ -49,25 +52,82 @@ interface Props {
 }
 
 interface State {
-
+  auth: boolean,
+  menuAuth: HTMLElement | null,
 }
 
 class AppComponent extends Component<Props, State> {
 
   constructor(public props: Props) {
     super(props);
+    this.state = {
+      auth: true,
+      menuAuth: null,
+    }
   }
 
   componentDidMount() {
     const path = this.props.history.location.pathname;
     const token = localStorage.getItem("token");
-    if (!token && path === '/home') {
-      this.props.history.push("/login");
-    } else if (token && path === '/login') {
-      this.props.history.push("/home");
-    } else if (token && path === '/signup') {
-      this.props.history.push("/home");
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        this.setState({
+          auth: true,
+        })
+      } else {
+        this.setState({
+          auth: false,
+        })
+      }
     }
+    this.props.history.listen(checkAuth.bind(this));
+    if (!token) {
+      this.setState({
+        auth: false,
+      })
+      if (path === '/home') {
+        this.props.history.push("/login");
+      }
+    } else {
+      this.setState({
+        auth: true,
+      })
+      if (path === '/login') {
+        this.props.history.push("/home");
+      }
+      if (path === '/signup') {
+        this.props.history.push("/home");
+      }
+    }
+  }
+
+  renderAuth() {
+    if (this.state.auth) {
+      return <IconButton edge="end" className={this.props.classes.profileButton} color="inherit" aria-label="profle" onClick={this.onOpenMenuAuth.bind(this)}>
+        <AccountCircleIcon />
+      </IconButton>;
+    }
+  }
+
+  onOpenMenuAuth(event: React.MouseEvent<HTMLButtonElement>) {
+    this.setState({
+      menuAuth: event.currentTarget
+    })
+  }
+
+  onCloseMenuAuth() {
+    this.setState({
+      menuAuth: null
+    })
+  }
+
+  onLogout() {
+    localStorage.removeItem("token");
+    this.setState({
+      menuAuth: null,
+    });
+    this.props.history.push("/login");
   }
 
   render() {
@@ -80,9 +140,10 @@ class AppComponent extends Component<Props, State> {
                 <Typography variant="h5" className={this.props.classes.title}>
                   Video
               </Typography>
-                <IconButton edge="end" className={this.props.classes.profileButton} color="inherit" aria-label="profle">
+              {this.renderAuth()}
+                {/* <IconButton edge="end" className={this.props.classes.profileButton} color="inherit" aria-label="profle">
                   <AccountCircleIcon />
-                </IconButton>
+                </IconButton> */}
               </Toolbar>
             </Container>
           </AppBar>
@@ -91,7 +152,7 @@ class AppComponent extends Component<Props, State> {
               <Redirect to="/home" />
             </Route>
             <Route path="/home" exact>
-
+                <HomeScreen />
             </Route>
             <Route path="/login" exact>
               <LoginScreen />
@@ -104,6 +165,14 @@ class AppComponent extends Component<Props, State> {
               </Route>
           </Switch>
         </ThemeProvider>
+        <Menu
+          keepMounted
+          anchorEl={this.state.menuAuth}
+          open={Boolean(this.state.menuAuth)}
+          onClose={this.onCloseMenuAuth.bind(this)}
+        >
+          <MenuItem onClick={this.onLogout.bind(this)}>Cerrar sesión</MenuItem>
+        </Menu>
       </div>
     );
   }

@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface Props {
-    classes: any;
+    classes: any,
     history: any,
 }
 
